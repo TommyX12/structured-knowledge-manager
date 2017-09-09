@@ -1,0 +1,184 @@
+@ see time manager note for more stuff
+
+a standalone command-line based tool:
+!!! integrate with vim, and make CLI intuitive and fast to use, extracting and saving etc.
+!!! prompt for setpath when old path becomes invalid.
+has a modifiable data base.
+stores nodes in a graph.
+automatic backup system.
+standardized query output format for use in gui tools
+you write a file that gets compiled into database (automatic linking).
+    default append, and will not overwrite.
+
+allow easy re-organization
+    can merge two nodes (or add link to content in another node)
+
+also detect if two nodes have very similar names and ask if you want to auto correct.
+
+? allow rich content such as ms-word
+    maybe contain file links that link to some files.
+    this then do not support latex compiling, unless its an includable latex file.
+
+can embed latex code.
+    can also embed other code.
+
+given a starting node, can bring out the parts you want to modify into a file (copying content from database), then you change and compile it back. (for example, generate something called MAT137 notes).
+    default overwrite (also mark out each sub-topic's previous name, so to enable renaming and deleting through this?).
+    also have link that indicates to link to original links (because max traversal depth is reached)
+    for cyclic reference, simply do not mark overwrite for the second referral, and omit content.
+
+? use garbage collection reference model. label some nodes to be persistent, and some are not. any node that has not been set persistent will be destroyed when it has no parent.
+    or just simply make top level nodes so as to organize things. force every-node to either connect to top level by some means, or be top level.
+
+given a starting node, can generate latex document.
+    or can generate many latex document and contain link that links.
+
+warn when appending to existing nodes. tell user to check for disambiguation.
+
+name matching shrinks word boundary, so "stack (memory segment)" is same as "stack(memory    segment)"
+
+actually manage the ? and !!! and @.
+
+can also generate a bunch of files such that the entire database can be built from the ground up using only these files. can choose what to include, etc.
+
+can specify max traversal depth
+use graph algorithms, prefix-tree, etc.
+can do queries such as view the graph structure like a file system.
+    can fuzzy search the database.
+    view content, parent, children of any node.
+
+also supports SQL style queries.
+the modification file uses lpp note syntax and indent.
+    if something is indented, this indicates a parent-child connection.
+    can also have special macro that add a parent or remove a parent.
+    ? maybe add a special type of link called pre-requisite links. what should those do and whats the difference between parent child relationship?
+    renaming of nodes. maybe use an ID system.
+
+local / enum nodes has only 1 parent, and will not have name clashing (local name-space). query use special search.
+    . asdfasdfasd and 1. 2. etc
+    . - asdf is no longer a local node, but an enum that refers to another global node
+    ? can refer to as - python :: syntax etc? also make it so its possible to have more parent (pseudo-restriction) using this reference?
+
+maybe even integrate machine learning clustering to re-organize.
+
+maybe a namespace system similar to C#.
+    specify file namespace (using) with :: music etc at top level lines.
+    also specify such that all new nodes created are prepended with a namespace.
+
+? adding a parent to a node with --:
+    - python:
+        -- list of programming languages
+
+        . syntax:
+            -- syntax :: examples
+            def ...
+            . conditionals:
+                ...
+
+        . type system:
+            -- type system :: examples
+            dynamic
+
+        . latest version:
+            3.6.x
+
+    - programming language:
+        - list of programming languages
+        - syntax:
+            syntax is defined as ....
+
+    - type system:
+        -- programming language
+        type system is defined as ...
+
+    after compilation:
+        - python:
+            . syntax:
+                def ...
+                . conditionals:
+                    ...
+
+            . type system:
+                dynamic
+
+            . latest version:
+                3.6.x
+
+        - programming language:
+            - list of programming languages
+            - syntax
+            - type system
+
+        - list of programming languages
+            - python
+
+        - syntax:
+            syntax is defined as ....
+
+            . examples:
+                - python :: syntax
+
+        - type system:
+            type system is defined as ...
+
+            . examples:
+                - python :: type system
+
+    when queried by programming language:
+        [overwrite]
+        - programming language:
+            [overwrite]
+            - list of programming languages
+                [overwrite]
+                - python
+                    [overwrite]
+                    . syntax:
+                        def ...
+                        [old connections]
+
+                    [overwrite]
+                    . type system:
+                        dynamic
+
+                    [overwrite]
+                    . latest version:
+                        3.6.x
+
+            [overwrite]
+            - syntax
+                syntax is defined as ....
+
+                [overwrite]
+                . examples:
+                    - python :: syntax
+
+            [overwrite]
+            - type system
+                type system is defined as ...
+
+                [overwrite]
+                . examples:
+                    - python :: type system
+
+
+? experimental feature: dual nodes:
+    suppose we have 2 nodes, "python", "JavaScript" and "syntax".
+    a dual node that is special to 2 nodes can be created with the ".." link:
+    adding the following:
+        - python:
+            .. syntax:
+                things
+
+        - syntax:
+            .. JavaScript:
+                things
+
+    will create the structure:
+        "python" -> "dual: python, syntax" <- "syntax" -> "dual: JavaScript, syntax" <- "JavaScript"
+
+    a dual node must have 2 parents.
+    when deleting a node, everything will be gone except these connections. if any exist, the node being deleted will never actually be gone.
+    these dual nodes are like local nodes, but they can also be queried on the other end.
+    ? can refer to as - python ||| syntax etc?
+
+    
