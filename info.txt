@@ -2,7 +2,7 @@
 
 a standalone command-line based tool:
 !!! integrate with vim, and make CLI intuitive and fast to use, extracting and saving etc.
-!!! prompt for setpath when old path becomes invalid.
+!!! prompt for setpath when old path becomes invalid (not a dir)
 has a modifiable data base.
 stores nodes in a graph.
 automatic backup system.
@@ -15,6 +15,19 @@ allow easy re-organization
 
 also detect if two nodes have very similar names and ask if you want to auto correct.
 
+able to escape with a \ at start of line so no special options is performed
+
+have a new special character: #command, which executes command when interpreted. this usually modifies the topic that immediately follows.
+    #rename [new name]
+        renames the following topic to the new name.
+        ? all rename commands are executed first? so then all other places use the new name.
+        
+    #overwrite
+        mark the following topic as having its content overwritten
+    
+    #delete
+        delete the following topic. also delete all topics that are children (namespace tree), unless '#delete self', then simply remove from part of children full name.
+
 ? allow rich content such as ms-word
     maybe contain file links that link to some files.
     this then do not support latex compiling, unless its an includable latex file.
@@ -22,9 +35,9 @@ also detect if two nodes have very similar names and ask if you want to auto cor
 can embed latex code.
     can also embed other code.
 
-given a starting node, can bring out the parts you want to modify into a file (copying content from database), then you change and compile it back. (for example, generate something called MAT137 notes).
-    default overwrite (also mark out each sub-topic's previous name, so to enable renaming and deleting through this?).
-    also have link that indicates to link to original links (because max traversal depth is reached)
+given a starting node, can extract out the parts you want to modify into a file (copying content from database), then you change and compile it back. (for example, generate something called MAT137 notes).
+    default overwrite.
+    when max traversal depth is reached, no longer mark overwrite, and omit content
     for cyclic reference, simply do not mark overwrite for the second referral, and omit content.
 
 ? use garbage collection reference model. label some nodes to be persistent, and some are not. any node that has not been set persistent will be destroyed when it has no parent.
@@ -35,7 +48,7 @@ given a starting node, can generate latex document.
 
 warn when appending to existing nodes. tell user to check for disambiguation.
 
-name matching shrinks word boundary, so "stack (memory segment)" is same as "stack(memory    segment)"
+name matching shrinks word boundary, so "computer :: stack (memory segment)" is same as "computer    ::stack(memory    segment)"
 
 actually manage the ? and !!! and @.
 
@@ -57,7 +70,8 @@ the modification file uses lpp note syntax and indent.
 local / enum nodes has only 1 parent, and will not have name clashing (local name-space). query use special search.
     . asdfasdfasd and 1. 2. etc
     . - asdf is no longer a local node, but an enum that refers to another global node
-    ? can refer to as - python :: syntax etc? also make it so its possible to have more parent (pseudo-restriction) using this reference?
+    can refer to as - python :: syntax.
+    the restriction is that each segment between :: will need to be actual nodes.
 
 maybe even integrate machine learning clustering to re-organize.
 
@@ -125,38 +139,38 @@ maybe a namespace system similar to C#.
                 - python :: type system
 
     when queried by programming language:
-        [overwrite]
+        #overwrite
         - programming language:
-            [overwrite]
+            #overwrite
             - list of programming languages
-                [overwrite]
+                #overwrite
                 - python
-                    [overwrite]
+                    #overwrite
                     . syntax:
                         def ...
-                        [old connections]
+                        . conditionals:
 
-                    [overwrite]
+                    #overwrite
                     . type system:
                         dynamic
 
-                    [overwrite]
+                    #overwrite
                     . latest version:
                         3.6.x
 
-            [overwrite]
+            #overwrite
             - syntax
                 syntax is defined as ....
 
-                [overwrite]
+                #overwrite
                 . examples:
                     - python :: syntax
 
-            [overwrite]
+            #overwrite
             - type system
                 type system is defined as ...
 
-                [overwrite]
+                #overwrite
                 . examples:
                     - python :: type system
 
