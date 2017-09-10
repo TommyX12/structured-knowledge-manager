@@ -107,7 +107,7 @@ def main(argc, argv):
     if operation == 'set_path':
         set_path()
 
-    if config['database_path'] is None:
+    if config['database_path'] is None or not os.path.isdir(config['database_path']):
         set_path()
     
     database = read_json(os.path.join(config['database_path'], DATABASE_FILENAME), {})
