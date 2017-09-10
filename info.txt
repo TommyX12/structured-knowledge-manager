@@ -13,20 +13,28 @@ you write a file that gets compiled into database (automatic linking).
 allow easy re-organization
     can merge two nodes (or add link to content in another node)
 
-also detect if two nodes have very similar names and ask if you want to auto correct.
+when compiling:
+    ask for all topic names in the document and show top 10 searches.
+    also add ability to abort.
+    also detect if two nodes have very similar names and ask if you want to auto correct.
+    warn when appending to existing nodes. tell user to check for disambiguation.
+
 
 able to escape with a \ at start of line so no special options is performed
 
-have a new special character: #command, which executes command when interpreted. this usually modifies the topic that immediately follows.
-    #rename [new name]
-        renames the following topic to the new name.
+have a new special character: # command, which executes command when interpreted. this usually modifies the topic that the commands are in.
+    # rename [new name]
+        renames the topic to the new name.
         ? all rename commands are executed first? so then all other places use the new name.
         
-    #overwrite
-        mark the following topic as having its content overwritten
+    # overwrite
+        mark the topic as having its content overwritten by whats written here.
     
-    #delete
-        delete the following topic. also delete all topics that are children (namespace tree), unless '#delete self', then simply remove from part of children full name.
+    # delete
+        delete the topic. also delete all topics that are children (namespace tree), unless '#delete self', then simply remove from part of children full name.
+    
+    # alias [alias]
+        add alias of this topic, useful when searching.
 
 ? allow rich content such as ms-word
     maybe contain file links that link to some files.
@@ -39,14 +47,12 @@ given a starting node, can extract out the parts you want to modify into a file 
     default overwrite.
     when max traversal depth is reached, no longer mark overwrite, and omit content
     for cyclic reference, simply do not mark overwrite for the second referral, and omit content.
-
+        
 ? use garbage collection reference model. label some nodes to be persistent, and some are not. any node that has not been set persistent will be destroyed when it has no parent.
     or just simply make top level nodes so as to organize things. force every-node to either connect to top level by some means, or be top level.
 
 given a starting node, can generate latex document.
     or can generate many latex document and contain link that links.
-
-warn when appending to existing nodes. tell user to check for disambiguation.
 
 name matching shrinks word boundary, so "computer :: stack (memory segment)" is same as "computer    ::stack(memory    segment)"
 
@@ -72,6 +78,7 @@ local / enum nodes has only 1 parent, and will not have name clashing (local nam
     . - asdf is no longer a local node, but an enum that refers to another global node
     can refer to as - python :: syntax.
     the restriction is that each segment between :: will need to be actual nodes.
+    also, local links are automatic, meaning a :: b will always have a linked to b, even if not explicitly specified.
 
 maybe even integrate machine learning clustering to re-organize.
 
@@ -139,7 +146,6 @@ maybe a namespace system similar to C#.
                 - python :: type system
 
     when queried by programming language:
-        #overwrite
         - programming language:
             #overwrite
             - list of programming languages
@@ -147,31 +153,32 @@ maybe a namespace system similar to C#.
                 - python
                     #overwrite
                     . syntax:
+                        #overwrite
                         def ...
                         . conditionals:
 
-                    #overwrite
                     . type system:
+                        #overwrite
                         dynamic
 
-                    #overwrite
                     . latest version:
+                        #overwrite
                         3.6.x
 
-            #overwrite
             - syntax
+                #overwrite
                 syntax is defined as ....
 
-                #overwrite
                 . examples:
+                    #overwrite
                     - python :: syntax
 
-            #overwrite
             - type system
+                #overwrite
                 type system is defined as ...
 
-                #overwrite
                 . examples:
+                    #overwrite
                     - python :: type system
 
 
