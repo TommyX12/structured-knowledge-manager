@@ -22,19 +22,23 @@ when compiling:
 
 able to escape with a \ at start of line so no special options is performed
 
-have a new special character: # command, which executes command when interpreted. this usually modifies the topic that the commands are in.
-    # rename [new name]
+repurpose @: @ command, which executes command when interpreted. this usually modifies the topic that the commands are in.
+    @ rename [new name]
         renames the topic to the new name.
         ? all rename commands are executed first? so then all other places use the new name.
         
-    # overwrite
+    @ overwrite
         mark the topic as having its content overwritten by whats written here.
     
-    # delete
-        delete the topic. also delete all topics that are children (namespace tree), unless '#delete self', then simply remove from part of children full name.
+    @ delete
+        delete the topic. also delete all topics that are children (namespace tree), unless '@ delete self', then simply remove from part of children full name.
     
-    # alias [alias]
+    @ alias [alias]
         add alias of this topic, useful when searching.
+        
+    @ file [file path]
+    @ web [url]
+        link to file or online resources
 
 ? allow rich content such as ms-word
     maybe contain file links that link to some files.
@@ -147,38 +151,38 @@ maybe a namespace system similar to C#.
 
     when queried by programming language:
         - programming language:
-            #overwrite
+            @ overwrite
             - list of programming languages
-                #overwrite
+                @ overwrite
                 - python
-                    #overwrite
+                    @ overwrite
                     . syntax:
-                        #overwrite
+                        @ overwrite
                         def ...
                         . conditionals:
 
                     . type system:
-                        #overwrite
+                        @ overwrite
                         dynamic
 
                     . latest version:
-                        #overwrite
+                        @ overwrite
                         3.6.x
 
             - syntax
-                #overwrite
+                @ overwrite
                 syntax is defined as ....
 
                 . examples:
-                    #overwrite
+                    @ overwrite
                     - python :: syntax
 
             - type system
-                #overwrite
+                @ overwrite
                 type system is defined as ...
 
                 . examples:
-                    #overwrite
+                    @ overwrite
                     - python :: type system
 
 
@@ -203,3 +207,4 @@ maybe a namespace system similar to C#.
     ? can refer to as - python ||| syntax etc?
 
     
+!!! maybe build a GUI that is easy to use.
