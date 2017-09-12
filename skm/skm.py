@@ -1,5 +1,7 @@
 import sys
 import json
+from database import *
+from parser import *
 from util import *
 
 MESSAGE_Y_N = ' (y/n)'
@@ -25,12 +27,15 @@ EXTENSION = '.skm'
 DATABASE_FILENAME = 'knowledge_base' + EXTENSION
 
 CMD_NAME = ''
+DATABASE_PATH = ''
 
 CONFIG_DEFAULT = {
         'database_path': None,
     }
 
 config = {}
+
+database = None
 
 if os.path.isfile(CONFIG_PATH):
     config = read_json(CONFIG_PATH, {})
@@ -40,7 +45,7 @@ if os.path.isfile(CONFIG_PATH):
 else:
     print(MESSAGE_CREATE_DEFAULT_CONFIG.format(CONFIG_PATH))
 
-dict_concat(CONFIG_DEFAULT, config, True)
+dict_concat(CONFIG_DEFAULT, config)
 
 def print_usage():
     print(MESSAGE_USAGE.format(CMD_NAME))
@@ -94,8 +99,13 @@ def get(args):
         print(MESSAGE_USAGE_GET)
         return 1
 
+def debug(args):
+    database.add_topic(Topic())
+    return 0
+
 def main(argc, argv):
-    global CMD_NAME
+    global CMD_NAME, DATABASE_PATH, database
+    
     CMD_NAME = argv[0]
     
     if argc < 2:
@@ -110,7 +120,9 @@ def main(argc, argv):
     if config['database_path'] is None or not os.path.isdir(config['database_path']):
         set_path()
     
-    database = read_json(os.path.join(config['database_path'], DATABASE_FILENAME), {})
+    DATABASE_PATH = os.path.join(config['database_path'], DATABASE_FILENAME)
+    
+    database = Database(read_json(DATABASE_PATH, {}))
     
     if operation == 'add':
         return add(argv[2:])
@@ -118,9 +130,12 @@ def main(argc, argv):
     elif operation == 'get':
         return get(argv[2:])
     
+    elif operation == 'debug':
+        return debug(argv[2:])
+    
     return 0
 
 if __name__ == '__main__':
-    main(len(sys.argv), sys.argv)
-    
-write_json(CONFIG_PATH, config)
+    if main(len(sys.argv), sys.argv) == 0:
+        write_json(CONFIG_PATH, config)
+        write_json(DATABASE_PATH, database.to_json())
