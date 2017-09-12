@@ -1,8 +1,10 @@
 @ see time manager note for more stuff
 
+!!! unify terminologies like topics vs nodes
+
 a standalone command-line based tool:
 !!! integrate with vim, and make CLI intuitive and fast to use, extracting and saving etc.
-!!! prompt for setpath when old path becomes invalid (not a dir)
+// !!! prompt for setpath when old path becomes invalid (not a dir)
 has a modifiable data base.
 stores nodes in a graph.
 automatic backup system.
@@ -13,8 +15,16 @@ you write a file that gets compiled into database (automatic linking).
 allow easy re-organization
     can merge two nodes (or add link to content in another node)
 
+https://github.com/jsonpickle/jsonpickle might be useful for database.
+
 when compiling:
     ask for all topic names in the document and show top 10 searches.
+        skip entries that are exact match.
+        search each part of a full namespace separately.
+        able to find missing link (e.g. a::b::c but wrote a::c)
+        able to use alias for each part
+        prioritize to topics in current file
+        
     also add ability to abort.
     also detect if two nodes have very similar names and ask if you want to auto correct.
     warn when appending to existing nodes. tell user to check for disambiguation.
@@ -22,10 +32,22 @@ when compiling:
 
 able to escape with a \ at start of line so no special options is performed
 
+!!! update lpp.vim syntax highlighting to suit this
+
+can strength the database by adding more connection.
+
+? automatic connection for stuff that are siblings but might have each other as prereq?
+
+an interactive mode that can do queries such as view the graph structure like a file system.
+    can fuzzy search the database.
+    view content, parent, children of any node.
+    query siblings, limited BFS propagation from node, explore topics, etc.
+
 repurpose @: @ command, which executes command when interpreted. this usually modifies the topic that the commands are in.
     @ rename [new name]
         renames the topic to the new name.
         ? all rename commands are executed first? so then all other places use the new name.
+        ? also rename all topics that has this in its namespace path
         
     @ overwrite
         mark the topic as having its content overwritten by whats written here.
@@ -57,6 +79,7 @@ given a starting node, can extract out the parts you want to modify into a file 
 
 given a starting node, can generate latex document.
     or can generate many latex document and contain link that links.
+    ? how to specify which copy of topic (when multiple occurs) to include and which to omit?
 
 name matching shrinks word boundary, so "computer :: stack (memory segment)" is same as "computer    ::stack(memory    segment)"
 
@@ -64,11 +87,10 @@ actually manage the ? and !!! and @.
 
 can also generate a bunch of files such that the entire database can be built from the ground up using only these files. can choose what to include, etc.
 
+order of outgoing links within a node is preserved.
+
 can specify max traversal depth
 use graph algorithms, prefix-tree, etc.
-can do queries such as view the graph structure like a file system.
-    can fuzzy search the database.
-    view content, parent, children of any node.
 
 also supports SQL style queries.
 the modification file uses lpp note syntax and indent.
@@ -82,6 +104,9 @@ local / enum nodes has only 1 parent, and will not have name clashing (local nam
     . - asdf is no longer a local node, but an enum that refers to another global node
     can refer to as - python :: syntax.
     the restriction is that each segment between :: will need to be actual nodes.
+    ? what if you remove connection from the parent to a local child?
+    ? how to perform reorganization such that you can move a lot of local child to a new one to structure things?
+    // ? do we introduce a command that refers to the old content of a node, so you can safely move them and maintain that?
     also, local links are automatic, meaning a :: b will always have a linked to b, even if not explicitly specified.
 
 maybe even integrate machine learning clustering to re-organize.
@@ -185,26 +210,7 @@ maybe a namespace system similar to C#.
                     @ overwrite
                     - python :: type system
 
-
-? experimental feature: dual nodes:
-    suppose we have 2 nodes, "python", "JavaScript" and "syntax".
-    a dual node that is special to 2 nodes can be created with the ".." link:
-    adding the following:
-        - python:
-            .. syntax:
-                things
-
-        - syntax:
-            .. JavaScript:
-                things
-
-    will create the structure:
-        "python" -> "dual: python, syntax" <- "syntax" -> "dual: JavaScript, syntax" <- "JavaScript"
-
-    a dual node must have 2 parents.
-    when deleting a node, everything will be gone except these connections. if any exist, the node being deleted will never actually be gone.
-    these dual nodes are like local nodes, but they can also be queried on the other end.
-    ? can refer to as - python ||| syntax etc?
-
     
 !!! maybe build a GUI that is easy to use.
+
+!!! after this is kinda operational, move my knowledges into it. make sure to regularly backup.
