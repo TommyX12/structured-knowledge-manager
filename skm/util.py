@@ -1,4 +1,4 @@
-import os, sys, codecs, glob, re, json, copy
+import os, sys, codecs, glob, re, json, copy, bisect
 
 HOME_PATH = os.path.expanduser('~')
 
@@ -57,10 +57,13 @@ def cut(string, i, j):
 def insert(string, i, part):
     return string[:i] + part + string[i:]
 
-def dict_concat(src, dest, only_add = False, deep_copy = False):
+def dict_concat(src, dest, additive = True, deep_copy = True):
     for key in src:
-        if not only_add or key not in dest:
-            dest[key] = copy.deepcopy() if deep_copy else src[key]
+        if not additive or key not in dest:
+            dest[key] = copy.deepcopy(src[key]) if deep_copy else src[key]
+        
+        elif isinstance(dest[key], dict) and isinstance(src[key], dict):
+            dict_concat(src[key], dest[key], additive, deep_copy)
     
     return dest
 
@@ -91,6 +94,9 @@ def skip_white_space(line, i):
 
 def skip_word_char(line, i):
     return skip(line, i, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_')
+
+def get_from(container, key, default = None):
+    return container[key] if key in container else default
 
 def extract_paren(line, i):
     if i >= len(line) or line[i] != '(':
@@ -221,4 +227,8 @@ def get_bracket_match(line):
             
     return result
 
+def lower_bound(arr, x):
+    return bisect.bisect_left(arr, x, lo = 0, hi = len(arr))
 
+def upper_bound(arr, x):
+    return bisect.bisect_right(arr, x, lo = 0, hi = len(arr))
