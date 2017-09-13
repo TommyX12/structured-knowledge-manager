@@ -17,18 +17,43 @@ allow easy re-organization
 
 https://github.com/jsonpickle/jsonpickle might be useful for database.
 
+!!! data structure:
+    !!! relational reference and prereq reference are different!
+    do not expose too many stuff in the Topic class.
+    store reference of database in topic
+    use a bunch of functions in Database class to modify the whole connection
+    any modification that requires modifying one or more property of one or more topics (without knowing the other topic), should be in database class.
+    methods that add connection should be in topic so you can create a sub network and then add
+
 when compiling:
     ask for all topic names in the document and show top 10 searches.
+        allow local search that restricts namespace.
+        !!! do not allow adding connection that already exists.
+        local entries use local search.
         skip entries that are exact match.
+        ? skip entries that are local but have no match and just add.
+        show context
+        also allow adding as new entry. then the path name gets its own search, then append the final topic name.
+            ? maybe during the process can ask for names
+            
+        also allow re-typing the name and search again.
         search each part of a full namespace separately.
+        !!! able to connect to a topic that is declared later.
         able to find missing link (e.g. a::b::c but wrote a::c)
         able to use alias for each part
-        prioritize to topics in current file
+        prioritize to topics in current file (or when choosing a name, do we update all other reference to that topic in the file)
+        prioritize parents that are related to stuff in current file.
+        also show the number of characters the content has.
+    
+    remember to remove the trailing : for a topic name.
         
     also add ability to abort.
     also detect if two nodes have very similar names and ask if you want to auto correct.
     warn when appending to existing nodes. tell user to check for disambiguation.
+    
+    ? duplicated reference: refering to both A::B and B. should we delete one?
 
+? maybe different type of links. some links are hidden, etc.
 
 able to escape with a \ at start of line so no special options is performed
 
@@ -37,17 +62,31 @@ able to escape with a \ at start of line so no special options is performed
 can strength the database by adding more connection.
 
 ? automatic connection for stuff that are siblings but might have each other as prereq?
+!!! handling prereq, and cyclic reference detection
+
+use - for local reference: parent child relationship.
+use > and < for relational reference 
+    !!! note that relational reference and prereq reference are different!
+    
+use >> and << for prereq reference
+use << (empty) for prereq reference to topic defined right above (sibling).
+maybe allow multiple type of connection on one line like >> > or ><
+
+use -- for local reference but starting from current parent. ---, ----, etc go further up.
 
 an interactive mode that can do queries such as view the graph structure like a file system.
     can fuzzy search the database.
     view content, parent, children of any node.
     query siblings, limited BFS propagation from node, explore topics, etc.
+    
+    ? record all query output to a file so editor can copy paste the stuffs
 
 repurpose @: @ command, which executes command when interpreted. this usually modifies the topic that the commands are in.
     @ rename [new name]
         renames the topic to the new name.
         ? all rename commands are executed first? so then all other places use the new name.
         ? also rename all topics that has this in its namespace path
+        !!! do not allow renaming a node to inside of itself
         
     @ overwrite
         mark the topic as having its content overwritten by whats written here.
@@ -71,8 +110,10 @@ can embed latex code.
 
 given a starting node, can extract out the parts you want to modify into a file (copying content from database), then you change and compile it back. (for example, generate something called MAT137 notes).
     default overwrite.
+    can specify max traversal depth
     when max traversal depth is reached, no longer mark overwrite, and omit content
-    for cyclic reference, simply do not mark overwrite for the second referral, and omit content.
+    for cyclic / duplicated reference, simply do not mark overwrite for the second referral, and omit content.
+        can specify the indentation. default 4 spaces
         
 ? use garbage collection reference model. label some nodes to be persistent, and some are not. any node that has not been set persistent will be destroyed when it has no parent.
     or just simply make top level nodes so as to organize things. force every-node to either connect to top level by some means, or be top level.
@@ -89,7 +130,6 @@ can also generate a bunch of files such that the entire database can be built fr
 
 order of outgoing links within a node is preserved.
 
-can specify max traversal depth
 use graph algorithms, prefix-tree, etc.
 
 also supports SQL style queries.
@@ -100,14 +140,14 @@ the modification file uses lpp note syntax and indent.
     renaming of nodes. maybe use an ID system.
 
 local / enum nodes has only 1 parent, and will not have name clashing (local name-space). query use special search.
-    . asdfasdfasd and 1. 2. etc
-    . - asdf is no longer a local node, but an enum that refers to another global node
-    can refer to as - python :: syntax.
+    - asdfasdfasd and 1. 2. etc
+    can refer to as > python :: syntax.
     the restriction is that each segment between :: will need to be actual nodes.
+    ? can use .. to refer to parent.
     ? what if you remove connection from the parent to a local child?
     ? how to perform reorganization such that you can move a lot of local child to a new one to structure things?
     // ? do we introduce a command that refers to the old content of a node, so you can safely move them and maintain that?
-    also, local links are automatic, meaning a :: b will always have a linked to b, even if not explicitly specified.
+    // also, local links are automatic, meaning a :: b will always have a linked to b, even if not explicitly specified.
 
 maybe even integrate machine learning clustering to re-organize.
 
@@ -115,18 +155,18 @@ maybe a namespace system similar to C#.
     specify file namespace (using) with :: music etc at top level lines.
     also specify such that all new nodes created are prepended with a namespace.
 
-? adding a parent to a node with --:
+? adding a parent to a node with <:
     - python:
-        -- list of programming languages
+        < list of programming languages
 
         . syntax:
-            -- syntax :: examples
+            < syntax :: examples
             def ...
             . conditionals:
                 ...
 
         . type system:
-            -- type system :: examples
+            < type system :: examples
             dynamic
 
         . latest version:
@@ -138,7 +178,7 @@ maybe a namespace system similar to C#.
             syntax is defined as ....
 
     - type system:
-        -- programming language
+        < programming language
         type system is defined as ...
 
     after compilation:
