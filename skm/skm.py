@@ -1,8 +1,8 @@
 import sys
 import json
-from database import *
-from parser import *
 from util import *
+from database import *
+from skm_parser import *
 
 MESSAGE_Y_N = ' (y/n)'
 
@@ -16,7 +16,7 @@ MESSAGE_BAD_DATABASE_PATH = 'invalid path.'
 MESSAGE_FAILED = 'failed.'
 MESSAGE_DONE = 'done.'
 MESSAGE_USAGE = 'arguments: operation ...'
-MESSAGE_USAGE_ADD = 'arguments: add file_name'
+MESSAGE_USAGE_ADD = 'arguments: parse file_name'
 MESSAGE_USAGE_GET = 'arguments: get topic_name'
 
 CONFIG_FILENAME = os.path.join(HOME_PATH, '_skm')
@@ -25,9 +25,11 @@ CONFIG_PATH = os.path.join(HOME_PATH, CONFIG_FILENAME)
 DEFAULT_DATABASE_PATH = os.path.join(HOME_PATH, 'knowledge')
 EXTENSION = '.skm'
 DATABASE_FILENAME = 'knowledge_base' + EXTENSION
+DEFAULT_EDIT_FILENAME = 'edit' + EXTENSION
 
 CMD_NAME = ''
 DATABASE_PATH = ''
+DEFAULT_EDIT_PATH = ''
 
 CONFIG_DEFAULT = {
         'database_path': None,
@@ -45,7 +47,7 @@ if os.path.isfile(CONFIG_PATH):
 else:
     print(MESSAGE_CREATE_DEFAULT_CONFIG.format(CONFIG_PATH))
 
-dict_concat(CONFIG_DEFAULT, config)
+config = dict_overwrite(config, CONFIG_DEFAULT, in_place = False)
 
 def print_usage():
     print(MESSAGE_USAGE.format(CMD_NAME))
@@ -89,10 +91,14 @@ def set_path():
     
     config['database_path'] = dbpath
     
-def add(args):
-    if len(args) <= 0:
-        print(MESSAGE_USAGE_ADD)
-        return 1
+def parse(args):
+    path = DEFAULT_EDIT_PATH
+    
+    if len(args) > 0:
+        path = args[0]
+    
+    text = read_file(path)
+    parse_skm(text, database)
 
 def get(args):
     if len(args) <= 0:
@@ -100,11 +106,11 @@ def get(args):
         return 1
 
 def debug(args):
-    database.add_topic(Topic())
+    print(str(database))
     return 0
 
 def main(argc, argv):
-    global CMD_NAME, DATABASE_PATH, database
+    global CMD_NAME, DATABASE_PATH, DEFAULT_EDIT_PATH, database
     
     CMD_NAME = argv[0]
     
@@ -121,11 +127,12 @@ def main(argc, argv):
         set_path()
     
     DATABASE_PATH = os.path.join(config['database_path'], DATABASE_FILENAME)
+    DEFAULT_EDIT_PATH = os.path.join(config['database_path'], DEFAULT_EDIT_FILENAME)
     
-    database = Database(read_json(DATABASE_PATH, {}))
+    database = read_object(DATABASE_PATH, Database())
     
-    if operation == 'add':
-        return add(argv[2:])
+    if operation == 'parse':
+        return parse(argv[2:])
     
     elif operation == 'get':
         return get(argv[2:])
@@ -138,4 +145,4 @@ def main(argc, argv):
 if __name__ == '__main__':
     if main(len(sys.argv), sys.argv) == 0:
         write_json(CONFIG_PATH, config)
-        write_json(DATABASE_PATH, database.to_json())
+        write_object(DATABASE_PATH, database)

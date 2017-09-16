@@ -16,6 +16,7 @@ allow easy re-organization
     can merge two nodes (or add link to content in another node)
 
 https://github.com/jsonpickle/jsonpickle might be useful for database.
+or use python's pickle module
 
 !!! data structure:
     !!! relational reference and prereq reference are different!
@@ -27,6 +28,7 @@ https://github.com/jsonpickle/jsonpickle might be useful for database.
 
 when compiling:
     ask for all topic names in the document and show top 10 searches.
+        can specify some "using" namespace at the top so the searches are easier.
         allow local search that restricts namespace.
         !!! do not allow adding connection that already exists.
         local entries use local search.
@@ -254,3 +256,5 @@ maybe a namespace system similar to C#.
 !!! maybe build a GUI that is easy to use.
 
 !!! after this is kinda operational, move my knowledges into it. make sure to regularly backup.
+
+? maybe able to get a random line that has ? in front of it.

@@ -1,4 +1,4 @@
-import os, sys, codecs, glob, re, json, copy, bisect
+import os, sys, codecs, glob, re, json, copy, bisect, pickle
 
 HOME_PATH = os.path.expanduser('~')
 
@@ -8,19 +8,19 @@ def printi(string):
 def list_dir(pattern):
     return glob.glob(pattern)   
 
-def read_file(path):
+def read_file(path, binary = False, encoding = 'utf-8-sig', default = ''):
     if not os.path.isfile(path):
         #  write_file(path, '')
-        return ''
+        return default
 
-    with open(path, encoding='utf-8-sig') as f:
+    with open(path, 'rb' if binary else 'r', encoding = None if binary else encoding) as f:
         content = f.read()
     
     return content
 
-def write_file(path, data):
+def write_file(path, data, binary = False):
     # able to make containing path if not exist
-    file = open(path, 'w')
+    file = open(path, 'wb' if binary else 'w')
     file.write(data)
     file.close()
 
@@ -34,6 +34,21 @@ def read_json(path, default=None):
 
 def write_json(path, data):
     write_file(path, json.dumps(data))
+
+def read_object(path, default=None):
+    data = read_file(path, True, default = None)
+    if data is None:
+        return default
+    
+    try:
+        result = pickle.loads(data)
+        return result
+    
+    except:
+        return default
+
+def write_object(path, obj):
+    write_file(path, pickle.dumps(obj), True)
 
 def clamp(num, l, r):
     if num < l:
@@ -57,13 +72,16 @@ def cut(string, i, j):
 def insert(string, i, part):
     return string[:i] + part + string[i:]
 
-def dict_concat(src, dest, additive = True, deep_copy = True):
+def dict_overwrite(src, dest, deep_copy = True, in_place = True, nested = True):
+    if not in_place:
+        dest = copy.deepcopy(dest)
+    
     for key in src:
-        if not additive or key not in dest:
-            dest[key] = copy.deepcopy(src[key]) if deep_copy else src[key]
+        if nested and isinstance(dest[key], dict) and isinstance(src[key], dict):
+            dict_concat(src[key], dest[key], deep_copy, True, True)
         
-        elif isinstance(dest[key], dict) and isinstance(src[key], dict):
-            dict_concat(src[key], dest[key], additive, deep_copy)
+        else:
+            dest[key] = copy.deepcopy(src[key])
     
     return dest
 
