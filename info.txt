@@ -1,4 +1,6 @@
 @ see time manager note for more stuff
+!!! check out relational data model for what to do. SQL?
+
 
 !!! unify terminologies like topics vs nodes
 
@@ -25,8 +27,15 @@ or use python's pickle module
     use a bunch of functions in Database class to modify the whole connection
     any modification that requires modifying one or more property of one or more topics (without knowing the other topic), should be in database class.
     methods that add connection should be in topic so you can create a sub network and then add
+    database provide functionality for fuzzy search etc.
+    parser interfaces with database, and provide functionality for displaying fuzzy search result etc and choose to add topic etc.
 
 when compiling:
+    note that top level topics are automatically under the root node (with name = empty string).
+        ? root node cannot have connection and content
+        root node cannot be deleted
+        therefore you should always use - as token
+        
     ask for all topic names in the document and show top 10 searches.
         can specify some "using" namespace at the top so the searches are easier.
         allow local search that restricts namespace.
@@ -37,6 +46,7 @@ when compiling:
         show context
         also allow adding as new entry. then the path name gets its own search, then append the final topic name.
             ? maybe during the process can ask for names
+            this applies to any topic with any token (connection, child etc). so you can specify creation of a prereq by << asdf.
             
         also allow re-typing the name and search again.
         search each part of a full namespace separately.
@@ -44,10 +54,14 @@ when compiling:
         able to find missing link (e.g. a::b::c but wrote a::c)
         able to use alias for each part
         prioritize to topics in current file (or when choosing a name, do we update all other reference to that topic in the file)
+            and topics similar to topics in current file
+            
         prioritize parents that are related to stuff in current file.
+        prioritize nodes with shorter full path name
         also show the number of characters the content has.
     
     remember to remove the trailing : for a topic name.
+        or maybe : means there must be content below, otherwise it is just a link?
         
     also add ability to abort.
     also detect if two nodes have very similar names and ask if you want to auto correct.
@@ -74,7 +88,7 @@ use >> and << for prereq reference
 use << (empty) for prereq reference to topic defined right above (sibling).
 maybe allow multiple type of connection on one line like >> > or ><
 
-use -- for local reference but starting from current parent. ---, ----, etc go further up.
+use -- for local reference but starting from current parent. ---, ----, etc go further up. and will by default put a relational reference for it, can specify with -- >> etc.
 
 an interactive mode that can do queries such as view the graph structure like a file system.
     can fuzzy search the database.
@@ -90,6 +104,9 @@ repurpose @: @ command, which executes command when interpreted. this usually mo
         ? also rename all topics that has this in its namespace path
         !!! do not allow renaming a node to inside of itself
         
+    @ id [id]
+        link this node to an id, so can move the node around
+    
     @ overwrite
         mark the topic as having its content overwritten by whats written here.
     
@@ -112,9 +129,12 @@ can embed latex code.
 
 given a starting node, can extract out the parts you want to modify into a file (copying content from database), then you change and compile it back. (for example, generate something called MAT137 notes).
     default overwrite.
+    use BFS
     can specify max traversal depth
+    can specify to include backward connections
     when max traversal depth is reached, no longer mark overwrite, and omit content
     for cyclic / duplicated reference, simply do not mark overwrite for the second referral, and omit content.
+        or make special rules that use DFS instead of BFS to determine which goes first.
         can specify the indentation. default 4 spaces
         
 ? use garbage collection reference model. label some nodes to be persistent, and some are not. any node that has not been set persistent will be destroyed when it has no parent.
@@ -125,6 +145,8 @@ given a starting node, can generate latex document.
     ? how to specify which copy of topic (when multiple occurs) to include and which to omit?
 
 name matching shrinks word boundary, so "computer :: stack (memory segment)" is same as "computer    ::stack(memory    segment)"
+
+maybe allow inline link like html.
 
 actually manage the ? and !!! and @.
 
@@ -148,6 +170,10 @@ local / enum nodes has only 1 parent, and will not have name clashing (local nam
     ? can use .. to refer to parent.
     ? what if you remove connection from the parent to a local child?
     ? how to perform reorganization such that you can move a lot of local child to a new one to structure things?
+        simply embed an id to the old thing.
+    
+    the idea of aggregation
+    
     // ? do we introduce a command that refers to the old content of a node, so you can safely move them and maintain that?
     // also, local links are automatic, meaning a :: b will always have a linked to b, even if not explicitly specified.
 
@@ -258,3 +284,10 @@ maybe a namespace system similar to C#.
 !!! after this is kinda operational, move my knowledges into it. make sure to regularly backup.
 
 ? maybe able to get a random line that has ? in front of it.
+
+? maybe able to share online for collaboration?
+
+optimization:
+    use lazy loading and not load the entire database?
+    design more efficient parsing etc.
+    use custom made ID instead of id()

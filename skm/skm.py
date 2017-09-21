@@ -99,6 +99,7 @@ def parse(args):
     
     text = read_file(path)
     parse_skm(text, database)
+    return 0
 
 def get(args):
     if len(args) <= 0:
@@ -129,7 +130,7 @@ def main(argc, argv):
     DATABASE_PATH = os.path.join(config['database_path'], DATABASE_FILENAME)
     DEFAULT_EDIT_PATH = os.path.join(config['database_path'], DEFAULT_EDIT_FILENAME)
     
-    database = read_object(DATABASE_PATH, Database())
+    database = Database(read_json(DATABASE_PATH, {}))
     
     if operation == 'parse':
         return parse(argv[2:])
@@ -145,4 +146,4 @@ def main(argc, argv):
 if __name__ == '__main__':
     if main(len(sys.argv), sys.argv) == 0:
         write_json(CONFIG_PATH, config)
-        write_object(DATABASE_PATH, database)
+        write_json(DATABASE_PATH, database.get_json())

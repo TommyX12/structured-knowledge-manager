@@ -32,10 +32,12 @@ def read_json(path, default=None):
     except:
         return default
 
-def write_json(path, data):
-    write_file(path, json.dumps(data))
+PRETTY_JSON = False
 
-def read_object(path, default=None):
+def write_json(path, data):
+    write_file(path, json.dumps(data, indent = '  ' if PRETTY_JSON else None, separators = (',', ':')))
+
+def read_pickle(path, default=None):
     data = read_file(path, True, default = None)
     if data is None:
         return default
@@ -47,7 +49,7 @@ def read_object(path, default=None):
     except:
         return default
 
-def write_object(path, obj):
+def write_pickle(path, obj):
     write_file(path, pickle.dumps(obj), True)
 
 def clamp(num, l, r):
@@ -113,8 +115,12 @@ def skip_white_space(line, i):
 def skip_word_char(line, i):
     return skip(line, i, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_')
 
-def get_from(container, key, default = None):
-    return container[key] if key in container else default
+def get_from(container, key, default = None, deep_copy = True):
+    if deep_copy:
+        return copy.deepcopy(container[key]) if key in container else copy.deepcopy(default)
+    
+    else:
+        return container[key] if key in container else default
 
 def extract_paren(line, i):
     if i >= len(line) or line[i] != '(':
@@ -250,3 +256,197 @@ def lower_bound(arr, x):
 
 def upper_bound(arr, x):
     return bisect.bisect_right(arr, x, lo = 0, hi = len(arr))
+
+
+class JSONProperty(object):
+    
+    def __init__(self,
+        name,
+        default        = None,
+        object_type    = None,
+        container_type = None,
+        get_json       = None,
+        set_json       = None):
+        
+        self.name           = name
+        self.default        = default
+        self.object_type    = object_type
+        self.container_type = container_type
+        self.get_json       = get_json if get_json is not None else JSONProperty.__default_get_json__
+        self.set_json       = set_json if set_json is not None else JSONProperty.__default_set_json__
+    
+    def __default_get_json__(prop, obj, json_object, scope_dict):
+        value = obj.__dict__[prop.name]
+        if prop.object_type is not None:
+            if prop.container_type == list:
+                json_object[prop.name] = [item.get_json(scope_dict) if item is not None else None for item in value]
+                
+            elif prop.container_type == dict:
+                result = {}
+                for key in value:
+                    result[str(key)] = value[key].get_json(scope_dict) if value[key] is not None else None
+                    
+                json_object[prop.name] = result
+            
+            else:
+                json_object[prop.name] = value.get_json(scope_dict) if value is not None else None
+            
+        else:
+            json_object[prop.name] = copy.deepcopy(value)
+    
+    def __default_set_json__(prop, obj, json_object, scope_dict):
+        if prop.object_type is not None:
+            if prop.container_type == list:
+                container = get_from(json_object, prop.name, [])
+                obj.__dict__[prop.name] = [JSONObject.__from_json__(prop.object_type, item, scope_dict) if item is not None else None for item in container]
+                
+            elif prop.container_type == dict:
+                result = {}
+                
+                container = get_from(json_object, prop.name, {})
+                for key in container:
+                    result[key] = JSONObject.__from_json__(prop.object_type, value[key], scope_dict) if value[key] is not None else None
+                    
+                obj.__dict__[prop.name] = result
+            
+            else:
+                if prop.name in json_object:
+                    if json_object[prop.name] is None:
+                        obj.__dict__[prop.name] = None
+                        
+                    else:
+                        obj.__dict__[prop.name] = JSONObject.__from_json__(prop.object_type, json_object[prop.name], scope_dict)
+                    
+                else:
+                    obj.__dict__[prop.name] = copy.deepcopy(prop.default)
+            
+        else:
+            default = prop.default
+            if prop.container_type == list:
+                default = []
+                
+            if prop.container_type == dict:
+                default = {}
+                
+            obj.__dict__[prop.name] = get_from(json_object, prop.name, default)
+        
+class JSONObject(object):
+    
+    __properties__ = [
+        
+    ]
+    
+    def __init__(self, json_object = {}, scope_dict = None):
+        self.set_json(json_object, scope_dict)
+        
+    def get_json(self, scope_dict = None):
+        self.__before_save__()
+        
+        if scope_dict is None:
+            scope_dict = {}
+        
+        json_id = id(self)
+        if json_id in scope_dict:
+            return {
+                '__json_id__': 0,
+                '__json_ptr__': json_id,
+            }
+        
+        scope_dict[json_id] = self
+        
+        result = {
+            '__json_id__': json_id,
+        }
+        for prop in self.__class__.__properties__:
+            prop.get_json(prop, self, result, scope_dict)
+        
+        return result
+    
+    def __before_save__(self):
+        pass
+    
+    def __after_load__(self):
+        pass
+    
+    def set_json(self, json_object, scope_dict = None):
+        if scope_dict is None:
+            scope_dict = {}
+            JSONObject.__get_scope_dict__(json_object, scope_dict)
+        
+        json_id = get_from(json_object, '__json_id__', 0)
+        
+        scope_dict[json_id] = self
+        
+        for prop in self.__class__.__properties__:
+            prop.set_json(prop, self, json_object, scope_dict)
+            
+        self.__after_load__()
+    
+    def __get_scope_dict__(json_object, scope_dict):
+        if isinstance(json_object, dict):
+            json_id = get_from(json_object, '__json_id__', 0)
+            if json_id != 0:
+                scope_dict[json_id] = json_object
+            
+            for key in json_object:
+                JSONObject.__get_scope_dict__(json_object[key], scope_dict)
+        
+        elif isinstance(json_object, list):
+            for item in json_object:
+                JSONObject.__get_scope_dict__(item, scope_dict)
+                
+    def __from_json__(object_type, json_object, scope_dict):
+        json_id = get_from(json_object, '__json_id__', 0)
+        if json_id == 0:
+            json_ptr = get_from(json_object, '__json_ptr__', 0)
+            if isinstance(scope_dict[json_ptr], dict):
+                scope_dict[json_ptr] = object_type(scope_dict[json_ptr], scope_dict)
+                
+            return scope_dict[json_ptr]
+        
+        elif isinstance(scope_dict[json_id], JSONObject):
+            return scope_dict[json_id]
+        
+        scope_dict[json_id] = object_type(json_object, scope_dict)
+        return scope_dict[json_id]
+
+#  class A(JSONObject):
+    
+    #  __properties__ = [
+        #  JSONProperty(
+            #  name = 'asdf',
+            #  default = 9),
+        
+        #  JSONProperty(
+            #  name = 'hello',
+            #  container_type = list,
+            #  default = []),
+    #  ]
+
+#  class B(JSONObject):
+    
+    #  __properties__ = [
+        #  JSONProperty(
+            #  name = 'f',
+            #  object_type = A,
+            #  container_type = list),
+        
+        #  JSONProperty(
+            #  name = 'asdv',
+            #  object_type = A),
+        
+        #  JSONProperty(
+            #  name = 'world',
+            #  object_type = A,
+            #  container_type = dict),
+    #  ]
+
+#  r = B()
+#  r.asdv.hello += [2, 4, 5]
+#  r.f += [A(), A()]
+#  r.f[0].asdf = 1
+#  r.f[1].asdf = 2
+#  string = json.dumps(r.get_json())
+#  print(string)
+#  s = B(json.loads(string))
+#  print(json.dumps(s.get_json()))
