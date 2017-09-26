@@ -29,6 +29,8 @@ or use python's pickle module
     methods that add connection should be in topic so you can create a sub network and then add
     database provide functionality for fuzzy search etc.
     parser interfaces with database, and provide functionality for displaying fuzzy search result etc and choose to add topic etc.
+    !!! allow inline link like html, each link remember the line numbers where it is left off. that line contains its own indentation and the link will add to it when extracting.
+        if a connection has line index -1, then it is always prepended to the content, and all later index add one.
 
 when compiling:
     note that top level topics are automatically under the root node (with name = empty string).
@@ -145,8 +147,6 @@ given a starting node, can generate latex document.
     ? how to specify which copy of topic (when multiple occurs) to include and which to omit?
 
 name matching shrinks word boundary, so "computer :: stack (memory segment)" is same as "computer    ::stack(memory    segment)"
-
-maybe allow inline link like html.
 
 actually manage the ? and !!! and @.
 

@@ -98,7 +98,7 @@ def parse(args):
         path = args[0]
     
     text = read_file(path)
-    parse_skm(text, database)
+    SKMParser(database).parse_skm(text, database)
     return 0
 
 def get(args):

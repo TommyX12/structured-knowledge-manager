@@ -188,6 +188,7 @@ def has_stripped_suffix(string, suffix):
     return j < 0
 
 # result[i] = index of the first line below i that has indentation <= get_indentation_len(lines(i))
+# if none exist, it would be len(lines)
 def get_indent_match(lines):
     result = [0 for i in range(len(lines))]
     indent_stack = [] # element: (line index, indentation)
@@ -221,6 +222,20 @@ MATCHING_BRACKET = {
 
 def matching_bracket(c):
     return MATCHING_BRACKET[c]
+
+def regex_find(string, regex):
+    match_object = re.search(pattern, string)
+    if not match_object:
+        return -1
+    
+    return match_object.start
+
+def regex_find_range(string, regex):
+    match_object = re.search(pattern, string)
+    if not match_object:
+        return None
+    
+    return (match_object.start, match_object.end)
 
 # result[i] = index of the char that have matching bracket
 # !!!WARNING: this has not been tested

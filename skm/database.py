@@ -36,10 +36,16 @@ class Topic(JSONObject):
         
     ]
 
-    def add_connection(self, topic, type):
+    def add_connection(self, topic, type, line):
+        for connection in self.connections:
+            if connection.topic == topic and connection.type == type:
+                connection.lines.append(line)
+                return
+            
         connection = Connection()
         connection.topic = topic
         connection.type  = type
+        connection.lines = [line]
         self.connections.append(connection)
         
         return connection
@@ -86,6 +92,10 @@ Connection.__properties__ = [
     JSONProperty(
         name = 'type',
         default = 'rel'),
+    
+    JSONProperty(
+        name = 'lines',
+        container_type = list),
     
 ]
 
