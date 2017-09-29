@@ -131,13 +131,15 @@ can embed latex code.
 
 given a starting node, can extract out the parts you want to modify into a file (copying content from database), then you change and compile it back. (for example, generate something called MAT137 notes).
     default overwrite.
-    use BFS
+    since duplicated reference is not allowed, can choose to use BFS (view as sequential topic) or DFS (view as structure)
     can specify max traversal depth
     can specify to include backward connections
     when max traversal depth is reached, no longer mark overwrite, and omit content
     for cyclic / duplicated reference, simply do not mark overwrite for the second referral, and omit content.
         or make special rules that use DFS instead of BFS to determine which goes first.
         can specify the indentation. default 4 spaces
+
+include a tutorial on how to take school notes (so you can use BFS and DFS to see topics)
         
 ? use garbage collection reference model. label some nodes to be persistent, and some are not. any node that has not been set persistent will be destroyed when it has no parent.
     or just simply make top level nodes so as to organize things. force every-node to either connect to top level by some means, or be top level.
