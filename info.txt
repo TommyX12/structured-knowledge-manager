@@ -293,3 +293,6 @@ optimization:
     use lazy loading and not load the entire database?
     design more efficient parsing etc.
     use custom made ID instead of id()
+    
+    
+!!! make into a server thing: since is personal, do not allow collaboration. once checked out an edit file, do NOT allow another checkout, and check in will have to verify an ID.
