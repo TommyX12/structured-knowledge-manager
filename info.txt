@@ -38,6 +38,8 @@ when compiling:
         root node cannot be deleted
         therefore you should always use - as token
         
+        ? or make it so that top level topics are just disjoint by default.
+        
     ask for all topic names in the document and show top 10 searches.
         can specify some "using" namespace at the top so the searches are easier.
         allow local search that restricts namespace.
@@ -181,6 +183,8 @@ local / enum nodes has only 1 parent, and will not have name clashing (local nam
 
 maybe even integrate machine learning clustering to re-organize.
 
+!!! see Jaccard similarity for string comparison.
+
 maybe a namespace system similar to C#.
     specify file namespace (using) with :: music etc at top level lines.
     also specify such that all new nodes created are prepended with a namespace.
@@ -296,3 +300,6 @@ optimization:
     
     
 !!! make into a server thing: since is personal, do not allow collaboration. once checked out an edit file, do NOT allow another checkout, and check in will have to verify an ID.
+
+
+!!! get inspired by xml and html, have more ways to define knowledge
