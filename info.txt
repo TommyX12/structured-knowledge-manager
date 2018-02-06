@@ -149,6 +149,8 @@ include a tutorial on how to take school notes (so you can use BFS and DFS to se
 given a starting node, can generate latex document.
     or can generate many latex document and contain link that links.
     ? how to specify which copy of topic (when multiple occurs) to include and which to omit?
+    
+    !!! also generate markdown.
 
 name matching shrinks word boundary, so "computer :: stack (memory segment)" is same as "computer    ::stack(memory    segment)"
 
