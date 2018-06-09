@@ -4,6 +4,13 @@
 
 !!! unify terminologies like topics vs nodes
 
+!!! TRY MAKING OUR NOTE INTO MARKDOWN OR LATEX OR HTML
+
+idea for knowledge and task management things: ideas connect with edge having meaning. each idea is triggered at some event, for example when doing GTD, everyday, before deadline, and so on. some can only be described with natural language, such as: "when writing software, check this doc". how to deal with them?
+The knowledge manager should use knowledge graph concept. we can always just take some notes of simple ideas: don't always group them.
+
+? ordered list vs unordered list.
+
 a standalone command-line based tool:
 !!! integrate with vim, and make CLI intuitive and fast to use, extracting and saving etc.
 // !!! prompt for setpath when old path becomes invalid (not a dir)
